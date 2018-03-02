@@ -27,22 +27,20 @@ const int popsize		= 1000;
 const int numgen		= 10000;
 const int outputgen		= 100;
 const double numint		= 10;	//number of repeated interactions individuals have with separate interaction partners per generation
-const double numround	= 10;	//CHANGE FROM FIRST MODEL: fixed number of interaction rounds per interaction
+const double numround	= 10;	//number of interaction rounds per interaction
 const double error		= 0.01;	//probability to make an implementation error
-const int initsd		= 0;	//initial standard deviation of weights/thresholds (mean 0). If 0, all is initialized at 0.
-const int uncertainty   = 10;  //CHANGE FROM FIRST MODEL: now a beta distribution. 0 is the least uncertain dist, 1 is uniform.
+const int uncertainty   = 10;  //0 is the least uncertain (beta) distrubution, 10 is uniform.
 
 //fitness
 const double bo			= 2.0;	//benefit of the cooperative action to other
 const double bs			= -1.0;	//mean benefit of the cooperative action to self (noise will be added to this)
 const double bs_maxdev	= 2.0;	//maximum deviation from bs
-const double cost_spec  = 0.0;	//cost of being a specialist (1 - c) is multiplied with total fitness - CHANGE FROM FIRST MODEL: no cost (cost set at 0)
-const double baseline   = 100.0; //CHANGE FROM FIRST MODEL: baseline fitness for the entire life of the individual 
+const double cost_spec  = 0.0;	//cost of being a specialist (1 - c) is multiplied with total fitness (default: cost set at 0)
+const double baseline   = 100.0; //baseline fitness for the entire life of the individual 
 
 //mutation
 const double mutprob	= 0.001;
 const double mutsize	= 0.1;  //standard deviation of normal dist from which mutations are drawn
-
 
 //individual & population
 struct indiv
@@ -93,7 +91,7 @@ void update(int ind, int self, int other, double thisbs)
 	(pop + ind)->w += self * (thisbs) + other * bo; 
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////make a decision using the neural network
+////////////////////////////////////////////////////////////////////////////////////////////////make a decision
 int decide(int ind, double mybs)
 {
 	int beh = -1;
@@ -225,36 +223,13 @@ void reproduce()
 	}
 }
 
-void isolated_contexts()
-{
-	output2 << "bs"	<< "\t";
-	output2 << "coop" << "\n";
-
-	for (int i = 0; i < 101; ++i)
-	{
-		coop = 0;
-		interactions++;
-
-		double thisbs = (bs - bs_maxdev + (i*1.0)/100.0 * 2 * bs_maxdev);
-
-		for (int j = 0; j < 100; j++)
-		{
-			interact(thisbs);
-		}
-
-		output2 << thisbs << "\t";
-		output2 << (1.0 * coop) / (2.0 * interactions) << "\n";
-	}
-}
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////statistics
 void statistics()
 {
 	double sum_switchpoint = 0;
 	double sum_strat[3] = { 0,0,0 };
 	double sum_specialist = 0;
-	double sum_defacto_heuristic = 0; // CHANGE FROM FIRST MODEL: not only keeps track of 'true' heuristics, but also adds 'de facto' heuristics (i.e. generalists with switchpoint < -3 or > 1)
+	double sum_defacto_heuristic = 0; // not only keeps track of 'true' heuristics, but also adds 'de facto' heuristics (i.e. generalists with switchpoint < -3 or > 1)
 	double ss_switchpoint = 0;
 	double av_switchpoint = 0;
 	double sd_switchpoint = 0;
@@ -350,8 +325,6 @@ int main()
 
 		reproduce();				
 	}
-
-	//isolated_contexts();
 
 	output.close();
 }
