@@ -46,8 +46,7 @@ const int outputgen		= 1;
 const double numint		= 10;	//number of repeated interactions individuals have with separate interaction partners per generation
 const double numround	= 10;	//CHANGE FROM FIRST MODEL: fixed number of interaction rounds per interaction
 const double error		= 0.01;	//probability to make an implementation error
-const int initsd		= 0;	//initial standard deviation of weights/thresholds (mean 0). If 0, all is initialized at 0.
-const int uncertainty   = 10;  //CHANGE FROM FIRST MODEL: now a beta distribution. 0 is the least uncertain dist, 1 is uniform.
+const int uncertainty   = 10;  //CHANGE FROM FIRST MODEL: now a beta distribution. 0 is the least uncertain dist, 10 is uniform.
 
 //fitness
 const double bo			= 2.0;	//benefit of the cooperative action to other
@@ -132,7 +131,7 @@ void update(int ind, int self, int other, double thisbs)
 	(pop + ind)->w += self * (thisbs) + other * bo; 
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////make a decision using the neural network
+////////////////////////////////////////////////////////////////////////////////////////////////make a decision 
 int decide(int ind, double mybs)
 {
 	int beh = -1;
@@ -210,7 +209,7 @@ void reproduce()
 {
 	indiv newpop[popsize];
 	
-	//first all individuals pay cost of specialism...
+	//first all individuals pay cost of specialism... note that this cost is set to 0 in the resubmission code
 	for (int i = 0; i < popsize; ++i)
 	{
 		if ((pop + i)->specialist == 1) { (pop + i)->w *= 1.0 - cost_spec; };
@@ -309,29 +308,6 @@ void reproduce()
 		*(pop + i) = *(newpop + i);
 	}
 }
-
-void isolated_contexts()
-{
-	output2 << "bs"	<< "\t";
-	output2 << "coop" << "\n";
-
-	for (int i = 0; i < 101; ++i)
-	{
-		coop = 0;
-		interactions++;
-
-		double thisbs = (bs - bs_maxdev + (i*1.0)/100.0 * 2 * bs_maxdev);
-
-		for (int j = 0; j < 100; j++)
-		{
-			interact(thisbs);
-		}
-
-		output2 << thisbs << "\t";
-		output2 << (1.0 * coop) / (2.0 * interactions) << "\n";
-	}
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////statistics
 void statistics()
@@ -494,8 +470,6 @@ int main()
 
 		reproduce();				
 	}
-
-	//isolated_contexts();
 
 	output.close();
 }
